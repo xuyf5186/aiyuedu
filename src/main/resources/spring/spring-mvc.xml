@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:beans="http://www.springframework.org/schema/c"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+<!--启动注解识别-->
+    <context:annotation-config/>
+
+    <!-- 自动扫描该包，使SpringMVC认为包下用了@controller注解的类是控制器 -->
+    <context:component-scan base-package="cn.controller">
+        <context:include-filter type="annotation"
+                                expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <bean id="controllerAop" class="cn.aop.ControllerAOP" />
+    <bean id="mybatisAop" class="cn.aop.MybatisAOP"/>
+    <aop:config>
+        <aop:aspect id="controllerAspect" ref="controllerAop">
+            <aop:pointcut id="target"
+                          expression="execution(public cn.util.ResultBean *(..))" />
+            <aop:around method="handlerControllerMethod" pointcut-ref="target" />
+        </aop:aspect>
+        <aop:aspect id="mybatisAspect" ref="mybatisAop">
+            <aop:pointcut id="insertPC"
+                          expression="execution(* cn.mapper.*Mapper.insert*(..))" />
+            <aop:around method="insertCutMethod" pointcut-ref="insertPC" />
+        </aop:aspect>
+        <aop:aspect ref="mybatisAop">
+            <aop:pointcut id="updatePC"
+                          expression="execution(* cn.mapper.*Mapper.update*(..))" />
+            <aop:around method="updateCutMethod" pointcut-ref="updatePC" />
+        </aop:aspect>
+        <aop:aspect ref="mybatisAop">
+            <aop:pointcut id="deletePC"
+                          expression="execution(* cn.mapper.*Mapper.delete*(..))" />
+            <aop:around method="deleteCutMethod" pointcut-ref="deletePC" />
+        </aop:aspect>
+    </aop:config>
+    <!-- 不返回值为null的字段 以及 时间格式化 -->
+    <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+                        <property name="dateFormat">
+                            <bean class="java.text.SimpleDateFormat">
+                                <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />
+                            </bean>
+                        </property>
+                        <property name="serializationInclusion">
+                            <util:constant static-field="com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL" />
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <mvc:resources location="/upload/" mapping="/upload/**"/>
+    <!-- 对上传文件的解析-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+</beans>
