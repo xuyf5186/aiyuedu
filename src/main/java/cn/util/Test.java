@@ -16,7 +16,8 @@ import java.util.concurrent.CountDownLatch;
  */
 public class Test {
     private final static int _1mb=1024*1024;
-    public static void main(String args[]) throws InterruptedException {
+
+    public static void main(String args[]) throws Throwable {
 //        ListNode head=new ListNode(1);
 //        head.next=new ListNode(3);
 //        head.next.next=new ListNode(5);
@@ -26,17 +27,19 @@ public class Test {
 //            System.out.println(i);
 //        }
 
-        Map<String,Integer> map=new Hashtable<>();
-        map.put("第一个",1);
-        map.put("第二个",2);
-        map.put("第三个",3);
-        Iterator<Map.Entry<String,Integer>> iterator=map.entrySet().iterator();
-        while(iterator.hasNext()){
-            System.out.println(iterator.next().getValue());
-        }
-        System.out.println(map.toString());
+//        Map<String,Integer> map=new HashMap<>();
+//        map.put("第一个",1);
+//        map.put("第二个",2);
+//        map.put("第三个",3);
+//        Iterator<Map.Entry<String,Integer>> iterator=map.entrySet().iterator();
+//        while(iterator.hasNext()){
+//            System.out.println(iterator.next().getValue());
+//        }
+//        System.out.println(map.toString());
+
     }
 }
+
 //class ListNode {
 //    int val;
 //    ListNode next = null;
